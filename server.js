@@ -51,8 +51,8 @@ function scanNewsDirectory() {
                         date: dateDir,
                         news: newsFiles.map(file => ({
                             time: file.replace('.html', ''),
-                            // 使用相对路径指向父级目录
-                            path: `../trendradar/output/${dateDir}/html/${file}`
+                            // 使用绝对路径，由 Node.js 服务器处理
+                            path: `/trendradar/output/${dateDir}/html/${file}`
                         }))
                     };
                     result.dates.push(dateItem);
@@ -82,6 +82,31 @@ const server = http.createServer((req, res) => {
             'Cache-Control': 'no-cache'
         });
         res.end(JSON.stringify(newsList, null, 2));
+        return;
+    }
+
+    // 处理 trendradar/output 目录的静态文件请求
+    if (urlPath.startsWith('/trendradar/output/')) {
+        const outputFilePath = path.join(__dirname, '..', decodeURIComponent(urlPath));
+        const extname = String(path.extname(outputFilePath)).toLowerCase();
+        const contentType = mimeTypes[extname] || 'application/octet-stream';
+
+        fs.readFile(outputFilePath, (error, content) => {
+            if (error) {
+                if (error.code === 'ENOENT') {
+                    console.log(`❌ 文件未找到: ${outputFilePath}`);
+                    res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+                    res.end('<h1>404 - 页面未找到</h1><p>路径: ' + outputFilePath + '</p>', 'utf-8');
+                } else {
+                    console.log(`❌ 服务器错误: ${error.code} - ${outputFilePath}`);
+                    res.writeHead(500);
+                    res.end('服务器错误: ' + error.code);
+                }
+            } else {
+                res.writeHead(200, { 'Content-Type': contentType });
+                res.end(content, 'utf-8');
+            }
+        });
         return;
     }
 
