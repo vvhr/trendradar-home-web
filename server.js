@@ -19,11 +19,13 @@ const mimeTypes = {
 
 // 扫描output目录获取新闻列表
 function scanNewsDirectory() {
-    const outputDir = path.join(__dirname, 'output');
+    // 读取父级目录下的 trendradar/output
+    const outputDir = path.join(__dirname, '..', 'trendradar', 'output');
     const result = { dates: [] };
 
     try {
         if (!fs.existsSync(outputDir)) {
+            console.log(`⚠️  未找到目录: ${outputDir}`);
             return result;
         }
 
@@ -49,7 +51,8 @@ function scanNewsDirectory() {
                         date: dateDir,
                         news: newsFiles.map(file => ({
                             time: file.replace('.html', ''),
-                            path: `output/${dateDir}/html/${file}`
+                            // 使用相对路径指向父级目录
+                            path: `../trendradar/output/${dateDir}/html/${file}`
                         }))
                     };
                     result.dates.push(dateItem);
