@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灵猫速推</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="container">
+        <!-- 顶部导航栏（移动端） -->
+        <nav class="top-nav">
+            <div class="nav-left">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <div class="nav-title">灵猫速推</div>
+            </div>
+            <button class="refresh-btn" onclick="loadNewsList(true)">🔄</button>
+        </nav>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">灵猫速推</div>
+                <div class="sidebar-subtitle">热点新闻每日推送系统</div>
+            </div>
+            <div class="sidebar-content" id="sidebarContent">
+                <div class="loading">加载中...</div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="current-info" id="currentInfo" style="display: none;">
+                当前查看: <span id="currentTitle">-</span>
+            </div>
+            <div class="iframe-container">
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-icon">📰</div>
+                    <div class="welcome-text">正在加载最新新闻...</div>
+                </div>
+                <iframe class="news-frame" id="newsFrame" style="display: none;"></iframe>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentNewsData = null;
+        let isFirstLoad = true;
+
+        // Toast提示函数
+        function showToast(message, type = 'info') {
+            // 移除已存在的toast
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // 创建新toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            // 显示toast
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // 3秒后隐藏并移除
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 加载新闻列表
+        async function loadNewsList(showFeedback = false) {
+            const sidebarContent = document.getElementById('sidebarContent');
+            const loading = sidebarContent.querySelector('.loading');
+            
+            if (loading) {
+                loading.style.display = 'block';
+            }
+
+            try {
+                const response = await fetch('api/news-list.json?t=' + Date.now());
+                const data = await response.json();
+                
+                // 检查是否有新内容
+                if (showFeedback && currentNewsData) {
+                    const oldCount = currentNewsData.dates.reduce((sum, d) => sum + d.news.length, 0);
+                    const newCount = data.dates.reduce((sum, d) => sum + d.news.length, 0);
+                    
+                    if (newCount > oldCount) {
+                        showToast(`✨ 发现 ${newCount - oldCount} 条新新闻`, 'success');
+                    } else if (JSON.stringify(currentNewsData) === JSON.stringify(data)) {
+                        showToast('📰 已是最新内容', 'info');
+                    } else {
+                        showToast('🔄 列表已更新', 'success');
+                    }
+                }
+                
+                currentNewsData = data;
+                renderNewsList(data);
+                
+                // 首次加载时自动打开最新新闻
+                if (isFirstLoad && data.dates.length > 0 && data.dates[0].news.length > 0) {
+                    isFirstLoad = false;
+                    const latestDate = data.dates[0];
+                    const latestNews = latestDate.news[0];
+                    setTimeout(() => {
+                        loadNewsAuto(latestNews.path, `${latestDate.date} ${latestNews.time}`);
+                    }, 100);
+                }
+                
+            } catch (error) {
+                console.error('加载新闻列表失败:', error);
+                sidebarContent.innerHTML = '<div style="padding: 20px; color: #ef4444; text-align: center;">加载失败，请刷新重试</div>';
+                if (showFeedback) {
+                    showToast('❌ 加载失败，请重试', 'warning');
+                }
+            }
+        }
+
+        // 渲染新闻列表
+        function renderNewsList(data) {
+            const sidebarContent = document.getElementById('sidebarContent');
+            
+            let html = '';
+            data.dates.forEach((dateItem, index) => {
+                html += `
+                    <div class="date-group ${index === 0 ? '' : 'collapsed'}" data-date="${dateItem.date}">
+                        <div class="date-header" onclick="toggleDateGroup(this)">
+                            <span>📅 ${dateItem.date}</span>
+                            <span class="date-icon">▼</span>
+                        </div>
+                        <div class="news-list">
+                            ${dateItem.news.map((news, newsIndex) => `
+                                <div class="news-item ${index === 0 && newsIndex === 0 ? 'active' : ''}" onclick="loadNews('${news.path}', '${dateItem.date} ${news.time}')">
+                                    🕐 ${news.time}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            sidebarContent.innerHTML = html;
+        }
+
+        // 切换日期组展开/折叠
+        function toggleDateGroup(element) {
+            const dateGroup = element.parentElement;
+            dateGroup.classList.toggle('collapsed');
+        }
+
+        // 加载新闻内容（用户点击）
+        function loadNews(path, title) {
+            const newsFrame = document.getElementById('newsFrame');
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const currentTitle = document.getElementById('currentTitle');
+            const currentInfo = document.getElementById('currentInfo');
+            
+            // 更新标题
+            currentTitle.textContent = title;
+            currentInfo.style.display = 'block';
+            
+            // 显示iframe，隐藏欢迎屏幕
+            welcomeScreen.style.display = 'none';
+            newsFrame.style.display = 'block';
+            
+            // 加载新闻页面
+            newsFrame.src = path;
+            
+            // 更新活动状态
+            document.querySelectorAll('.news-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 关闭侧边栏
+            closeSidebar();
+        }
+
+        // 自动加载新闻内容（首次加载）
+        function loadNewsAuto(path, title) {
+            const newsFrame = document.getElementById('newsFrame');
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const currentTitle = document.getElementById('currentTitle');
+            const currentInfo = document.getElementById('currentInfo');
+            
+            // 更新标题
+            currentTitle.textContent = title;
+            currentInfo.style.display = 'block';
+            
+            // 显示iframe，隐藏欢迎屏幕
+            welcomeScreen.style.display = 'none';
+            newsFrame.style.display = 'block';
+            
+            // 加载新闻页面
+            newsFrame.src = path;
+        }
+
+        // 移动端菜单切换
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        });
+
+        overlay.addEventListener('click', closeSidebar);
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('load', loadNewsList);
+    </script>
+</body>
+</html>

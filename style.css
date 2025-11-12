@@ -1,0 +1,356 @@
+ * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            min-height: 44px;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+            line-height: 1;
+        }
+
+        .menu-toggle:active {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .nav-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            line-height: 1;
+        }
+
+        .refresh-btn:active {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 85%;
+            max-width: 320px;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .sidebar-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            opacity: 0.85;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .date-group {
+            margin-bottom: 4px;
+        }
+
+        .date-header {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.2s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .date-header:active {
+            background: #f3f4f6;
+        }
+
+        .date-icon {
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .date-group.collapsed .date-icon {
+            transform: rotate(-90deg);
+        }
+
+        .news-list {
+            display: none;
+            padding: 4px 0;
+        }
+
+        .date-group:not(.collapsed) .news-list {
+            display: block;
+        }
+
+        .news-item {
+            padding: 10px 16px 10px 36px;
+            font-size: 13px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .news-item:active {
+            background: #f3f4f6;
+        }
+
+        .news-item.active {
+            background: #eef2ff;
+            color: #4f46e5;
+            border-left-color: #4f46e5;
+            font-weight: 500;
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .current-info {
+            padding: 8px 12px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .iframe-container {
+            flex: 1;
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        .news-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #9ca3af;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .welcome-text {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        /* 滚动条样式 */
+        .sidebar-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 2px;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: rgba(16, 185, 129, 0.95);
+        }
+
+        .toast.info {
+            background: rgba(59, 130, 246, 0.95);
+        }
+
+        .toast.warning {
+            background: rgba(245, 158, 11, 0.95);
+        }
+
+        /* 桌面端适配 */
+        @media (min-width: 769px) {
+            .container {
+                flex-direction: row;
+            }
+
+            .top-nav {
+                display: none;
+            }
+
+            .sidebar {
+                position: static;
+                width: 320px;
+                max-width: none;
+                transform: translateX(0);
+                box-shadow: none;
+                border-right: 1px solid #e5e7eb;
+            }
+
+            .overlay {
+                display: none !important;
+            }
+
+            .current-info {
+                padding: 16px 24px;
+                text-align: left;
+                font-size: 15px;
+            }
+
+            .date-header:hover {
+                background: #f9fafb;
+            }
+
+            .news-item:hover {
+                background: #f9fafb;
+                color: #4f46e5;
+            }
+
+            .news-item:active {
+                background: #eef2ff;
+            }
+
+            .toast {
+                top: 20px;
+            }
+        }
