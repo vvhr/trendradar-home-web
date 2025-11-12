@@ -135,11 +135,19 @@ node server.js
 ### 部署
 
 可以部署到任何支持 Node.js 的服务器或平台：
+- **宝塔面板** - 查看 [DEPLOY.md](DEPLOY.md) 获取详细部署指南
 - VPS (使用 PM2 管理进程)
 - Heroku
 - Vercel
 - Railway
 - 等等
+
+**宝塔面板快速部署:**
+```bash
+cd /root/trendradar-home-web
+pm2 start server.js --name trendradar-home-web
+pm2 save
+```
 
 ## 🤝 贡献
 
