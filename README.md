@@ -1,15 +1,6 @@
 # TrendRadar Home Web
 
-🚀 一个现代化的新闻门户系统，自动扫描并展示热点新闻分析。
-
-## ✨ 特性
-
-- 📱 **移动端优先设计** - 完美适配手机和平板
-- 🔄 **自动扫描** - 实时扫描 output 目录，无需手动刷新
-- 🎯 **智能加载** - 自动显示最新新闻
-- 💬 **即时反馈** - Toast 提示，操作反馈清晰
-- 🎨 **现代化界面** - 渐变色设计，流畅动画
-- 📰 **iframe 嵌入** - 无缝展示新闻内容
+The trendradar project will generate news web pages in the output directory. This project builds a portal page to automatically discover all generated news pages and create a portal navigation page, using Node + HTML, and is very simple and easy to use.
 
 ## 🚀 快速开始
 
