@@ -1,6 +1,6 @@
 # TrendRadar Home Web
 
-The trendradar project will generate news web pages in the output directory. This project builds a portal page to automatically discover all generated news pages and create a portal navigation page, using Node + HTML, and is very simple and easy to use.
+trendradar项目会在output目录下生成新闻网页, 本项目构建了一个门户页, 用于自动检索所有已生成的新闻网页并生成门户导航页, 采用node+html, 非常简单易用.
 
 ## 🚀 快速开始
 
@@ -10,9 +10,12 @@ The trendradar project will generate news web pages in the output directory. Thi
 
 ### 安装运行
 
-1. 克隆仓库
+1. 在trendradar同级父目录下新建trendradar-home-web目录并克隆仓库
 ```bash
-git clone https://github.com/vvhr/trendradar-home-web.git
+# 如果已创建trendradar-home-web目录, 则git clone末尾需要加 .
+# 如果未创建,则不需要加点, 会自动创建这个目录
+
+git clone https://github.com/vvhr/trendradar-home-web.git .
 cd trendradar-home-web
 ```
 
@@ -23,7 +26,7 @@ cd trendradar-home-web
 start-server.bat
 ```
 
-**或手动启动:**
+**其他已安装了node的系统:**
 ```bash
 node server.js
 ```
@@ -55,6 +58,11 @@ parent-directory/
 **注意**: 本项目需要与 `trendradar` 爬虫项目放在同一父级目录下。
 
 ## 🔧 配置
+
+### 修改网站标题
+
+本项目的前端为静态html项目, 因此您可以随时自由修改.
+打开 index.html 直接修改网站标题,导航标题等.
 
 ### 修改端口
 
